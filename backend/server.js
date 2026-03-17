@@ -135,7 +135,8 @@ app.get("/", (req, res) => {
 });
 
 // Montar tu app de rutas API bajo /api
-app.use("/api", baseApp);
+// app.use("/api", baseApp);
+app.use( baseApp);
 
 // Endpoint health check para Railway
 app.get("/health", (req, res) => res.send("OK"));
@@ -149,7 +150,7 @@ const startServer = async () => {
     await initializeDatabase();
     console.log("✅ Base de datos lista");
 
-    app.listen(PORT, "0.0.0.0", () => {
+    app.listen(PORT, () => {
       console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
       console.log(`🌍 Entorno: ${process.env.NODE_ENV || "development"}`);
     });
