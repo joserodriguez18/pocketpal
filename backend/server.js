@@ -66,31 +66,95 @@ startServer();
  * @description Servidor principal PocketPal listo para Railway.
  */
 
+// import "dotenv/config";
+// import { app } from "./src/app.js";
+// import { initializeDatabase } from "./src/db/init.js";
+// import { startSyncCron } from "./src/jobs/syncCron.js";
+
+// // Puerto asignado por Railway
+// const PORT = process.env.PORT || 3000;
+
+// // Endpoint para que Railway verifique que el contenedor está activo
+// app.get("/health", (req, res) => res.send("OK"));
+
+// // Inicia la base de datos y el servidor
+// const startServer = async () => {
+//   try {
+//     console.log("🗄️ Inicializando base de datos MySQL...");
+//     await initializeDatabase();
+//     console.log("✅ Base de datos lista");
+
+//     // Inicia servidor escuchando en 0.0.0.0 para que Railway pueda conectarse
+//     app.listen(PORT, "0.0.0.0", () => {
+//       console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
+//       console.log(`🌍 Entorno: ${process.env.NODE_ENV || "development"}`);
+//     });
+
+//     // Inicia cron de sincronización de Gmail
+//     startSyncCron();
+//     console.log("⏰ Cron de sincronización Gmail iniciado (cada hora)");
+
+//   } catch (err) {
+//     console.error("❌ Error arrancando servidor:", err);
+//     process.exit(1);
+//   }
+// };
+
+// startServer();
+
+
+
+/**
+ * @file server.js
+ * @description Servidor principal PocketPal listo para Railway.
+ */
+
 import "dotenv/config";
-import { app } from "./src/app.js";
-import { initializeDatabase } from "./src/db/init.js";
-import { startSyncCron } from "./src/jobs/syncCron.js";
+import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
 
-// Puerto asignado por Railway
-const PORT = process.env.PORT || 3000;
+import { app as baseApp } from "./src/app.js";           // Tu app Express original con rutas API
+import { initializeDatabase } from "./src/db/init.js";   // Inicialización de MySQL
+import { startSyncCron } from "./src/jobs/syncCron.js";  // Cron de Gmail
 
-// Endpoint para que Railway verifique que el contenedor está activo
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// ================= Express principal =================
+const app = express();
+
+// ================= Middleware =================
+// Servir frontend estático
+const frontendPath = path.join(__dirname, "frontend"); // Cambia "frontend" si tu carpeta se llama diferente
+app.use(express.static(frontendPath));
+
+// Servir index.html en la raíz
+app.get("/", (req, res) => {
+  res.sendFile(path.join(frontendPath, "index.html"));
+});
+
+// Montar tu app de rutas API bajo /api
+app.use("/api", baseApp);
+
+// Endpoint health check para Railway
 app.get("/health", (req, res) => res.send("OK"));
 
-// Inicia la base de datos y el servidor
+// ================= Servidor =================
+const PORT = process.env.PORT || 3000;
+
 const startServer = async () => {
   try {
     console.log("🗄️ Inicializando base de datos MySQL...");
     await initializeDatabase();
     console.log("✅ Base de datos lista");
 
-    // Inicia servidor escuchando en 0.0.0.0 para que Railway pueda conectarse
     app.listen(PORT, "0.0.0.0", () => {
       console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
       console.log(`🌍 Entorno: ${process.env.NODE_ENV || "development"}`);
     });
 
-    // Inicia cron de sincronización de Gmail
+    // Iniciar cron de sincronización Gmail
     startSyncCron();
     console.log("⏰ Cron de sincronización Gmail iniciado (cada hora)");
 
