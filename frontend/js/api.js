@@ -82,7 +82,7 @@ const apiFetch = async (endpoint, options = {}) => {
     ...(options.headers || {}),
   };
 
-  const response = await fetch(`http://localhost:3000/api${endpoint}`, {
+  const response = await fetch(`https://pocketpal-production.up.railway.app/api${endpoint}`, {
     ...options,
     headers,
   });

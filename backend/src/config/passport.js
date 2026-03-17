@@ -30,7 +30,7 @@ passport.use(
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       // GOOGLE_CALLBACK_URL debe incluir el dominio completo.
       // Nunca hardcodear localhost aquí — cambiar la variable para cada entorno.
-      callbackURL:  "http://localhost:3000/api/auth/google/callback",
+      callbackURL: "https://pocketpal-production.up.railway.app/api/auth/google/callback",
     },
 
     /**
