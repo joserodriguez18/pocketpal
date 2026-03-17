@@ -15,7 +15,7 @@
  *   que el servidor esté escuchando.
  */
 
-import "dotenv/config"; // Cargar .env ANTES de cualquier otro import
+/*import "dotenv/config"; // Cargar .env ANTES de cualquier otro import
 
 import { app } from "./src/app.js";
 import { initializeDatabase } from "./src/db/init.js";
@@ -30,7 +30,7 @@ const PORT = process.env.PORT || 3000;
  *   3. Inicia el cron job de sincronización de Gmail.
  *
  * @returns {Promise<void>}
- */
+ 
 const startServer = async () => {
   try {
     // Paso 1: Crear tablas e índices si no existen
@@ -54,6 +54,48 @@ const startServer = async () => {
   } catch (error) {
     console.error("❌ Error al arrancar el servidor:", error);
     // exit(1) para que PM2 / Docker reinicie el proceso automáticamente
+    process.exit(1);
+  }
+};
+
+startServer();
+*/
+
+/**
+ * @file server.js
+ * @description Servidor principal PocketPal listo para Railway.
+ */
+
+import "dotenv/config";
+import { app } from "./src/app.js";
+import { initializeDatabase } from "./src/db/init.js";
+import { startSyncCron } from "./src/jobs/syncCron.js";
+
+// Puerto asignado por Railway
+const PORT = process.env.PORT || 3000;
+
+// Endpoint para que Railway verifique que el contenedor está activo
+app.get("/health", (req, res) => res.send("OK"));
+
+// Inicia la base de datos y el servidor
+const startServer = async () => {
+  try {
+    console.log("🗄️ Inicializando base de datos MySQL...");
+    await initializeDatabase();
+    console.log("✅ Base de datos lista");
+
+    // Inicia servidor escuchando en 0.0.0.0 para que Railway pueda conectarse
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
+      console.log(`🌍 Entorno: ${process.env.NODE_ENV || "development"}`);
+    });
+
+    // Inicia cron de sincronización de Gmail
+    startSyncCron();
+    console.log("⏰ Cron de sincronización Gmail iniciado (cada hora)");
+
+  } catch (err) {
+    console.error("❌ Error arrancando servidor:", err);
     process.exit(1);
   }
 };
