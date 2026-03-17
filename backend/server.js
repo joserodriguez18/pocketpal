@@ -136,7 +136,7 @@ app.get("/", (req, res) => {
 
 // Montar tu app de rutas API bajo /api
 // app.use("/api", baseApp);
-app.use( baseApp);
+app.use("/api", baseApp);
 
 // Endpoint health check para Railway
 app.get("/health", (req, res) => res.send("OK"));
