@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "build": "cp -r ../frontend ./frontend"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

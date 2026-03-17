@@ -63,7 +63,7 @@ app.use("/api/auth/login",   authLimiter);  // protege contra fuerza bruta
 app.use("/api/auth/register", authLimiter);
 
 // ─── Archivos estáticos del frontend ──────────────────────────────────────────
-app.use(express.static(path.join(__dirname, "..", "frontend")));
+app.use(express.static(path.join(__dirname, "../frontend")));
 
 // ─── Health check ──────────────────────────────────────────────────────────────
 app.get("/health", (req, res) =>
