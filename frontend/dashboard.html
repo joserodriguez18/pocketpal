@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>POCKETPAL — Dashboard</title>
+  <link rel="shortcut icon" href="assets/logoPocketPal.png" type="image/x-icon" />
+
+  <!-- Fuentes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Estilos — base → componentes reutilizables → página específica -->
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+
+  <!-- Chart.js (defer: no bloquea el renderizado del HTML) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
+</head>
+
+<body>
+<div class="app-shell">
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SIDEBAR
+       ═══════════════════════════════════════════════════════════ -->
+  <aside id="sidebar" class="sidebar flex-col bg-nova-bg2">
+
+    <!-- Logo -->
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-mark nova-grad">
+        <img src="assets/logoPocketPal.png" alt="PocketPal logo" />
+      </div>
+      <span class="sidebar-logo-text">POCKETPAL</span>
+    </div>
+
+    <!-- Navegación -->
+    <nav class="sidebar-nav" aria-label="Navegación principal">
+
+      <p class="nav-section-label">Principal</p>
+      <a href="" class="nav-item active" aria-current="page">
+        <span class="nav-item-icon" aria-hidden="true">◈</span> Dashboard
+      </a>
+      <a href="./ai.html" class="nav-item">
+        <span class="nav-item-icon" aria-hidden="true">✦</span> Agente POCKETPAL
+      </a>
+
+      <p class="nav-section-label">Finanzas</p>
+      <button class="nav-item" data-scroll="section-transactions">
+        <span class="nav-item-icon" aria-hidden="true">⇅</span> Transacciones
+      </button>
+      <button class="nav-item" data-scroll="section-goals">
+        <span class="nav-item-icon" aria-hidden="true">◎</span> Metas
+      </button>
+      <button class="nav-item" data-scroll="section-categories">
+        <span class="nav-item-icon" aria-hidden="true">◫</span> Categorías
+      </button>
+      <button class="nav-item" data-scroll="section-charts">
+        <span class="nav-item-icon" aria-hidden="true">◑</span> Gráficas
+      </button>
+
+      <p class="nav-section-label">Acciones</p>
+      <button class="nav-item" id="nav-new-tx">
+        <span class="nav-item-icon" aria-hidden="true">＋</span> Nueva transacción
+      </button>
+      <button class="nav-item" id="nav-new-goal">
+        <span class="nav-item-icon" aria-hidden="true">⊕</span> Nueva meta
+      </button>
+      <button class="nav-item" id="nav-new-category">
+        <span class="nav-item-icon" aria-hidden="true">◫</span> Nueva categoría
+      </button>
+      <button class="nav-item" id="btn-sync">
+        <span class="nav-item-icon" aria-hidden="true">⟳</span> Sincronizar Gmail
+      </button>
+    </nav>
+
+    <!-- Perfil del usuario + logout -->
+    <div class="sidebar-user">
+      <div class="user-card">
+        <div class="user-avatar nova-grad" id="user-avatar" aria-hidden="true">?</div>
+        <div class="user-info">
+          <div class="user-name" id="user-name">—</div>
+          <div class="user-email" id="user-email">—</div>
+        </div>
+      </div>
+      <button id="btn-logout" class="btn btn-ghost btn-full btn-sm">Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <!-- Overlay oscuro para cerrar el sidebar en móvil -->
+  <div id="sidebar-overlay" aria-hidden="true"></div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       HEADER
+       ═══════════════════════════════════════════════════════════ -->
+  <header class="dashboard-header">
+    <div class="header-left">
+      <!-- Solo visible en móvil — script.js lo muestra/oculta -->
+      <button id="btn-menu" class="btn btn-secondary btn-sm btn-menu-hamburger" aria-label="Abrir menú">☰</button>
+      <p class="header-greeting">
+        Hola, <span class="gradient-text" id="greeting-name">—</span> 👋
+      </p>
+    </div>
+    <a href="./ai.html" class="btn btn-secondary btn-sm">✦ Hablar con POCKETPAL</a>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       MAIN
+       ═══════════════════════════════════════════════════════════ -->
+  <main class="dashboard-main">
+
+    <!-- KPI cards -->
+    <div class="stat-cards-grid page-section" role="region" aria-label="Resumen financiero">
+      <div class="stat-card income">
+        <span class="stat-icon" aria-hidden="true">↑</span>
+        <div class="stat-label">Ingresos totales</div>
+        <div class="stat-value" id="stat-income">—</div>
+        <div class="stat-sub">Este período</div>
+      </div>
+      <div class="stat-card expense">
+        <span class="stat-icon" aria-hidden="true">↓</span>
+        <div class="stat-label">Gastos totales</div>
+        <div class="stat-value" id="stat-expense">—</div>
+        <div class="stat-sub">Este período</div>
+      </div>
+      <div class="stat-card balance">
+        <span class="stat-icon" aria-hidden="true">≈</span>
+        <div class="stat-label">Balance neto</div>
+        <div class="stat-value" id="stat-balance">—</div>
+        <div class="stat-sub">Ingreso − Gastos</div>
+      </div>
+      <div class="stat-card goals">
+        <span class="stat-icon" aria-hidden="true">◎</span>
+        <div class="stat-label">Metas activas</div>
+        <div class="stat-value" id="stat-goals">—</div>
+        <div class="stat-sub">En progreso</div>
+      </div>
+    </div>
+
+    <!-- Gráficas -->
+    <div id="section-charts" class="charts-grid page-section" role="region" aria-label="Gráficas">
+      <div class="chart-card">
+        <div class="chart-title">Ingresos vs. Gastos</div>
+        <div class="chart-subtitle">Por mes</div>
+        <div class="chart-container"><canvas id="chart-monthly" aria-label="Gráfica de barras ingresos vs gastos"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Gastos por categoría</div>
+        <div class="chart-subtitle">Distribución</div>
+        <div class="chart-container"><canvas id="chart-categories" aria-label="Gráfica de dona por categoría"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Balance acumulado -->
+    <div class="chart-card chart-card--mb page-section" role="region" aria-label="Balance acumulado">
+      <div class="chart-title">Balance acumulado</div>
+      <div class="chart-subtitle">Evolución mes a mes</div>
+      <div class="chart-container-sm"><canvas id="chart-balance" aria-label="Gráfica de línea balance acumulado"></canvas></div>
+    </div>
+
+    <!-- Transacciones + Metas -->
+    <div class="tx-goals-grid page-section">
+
+      <!-- Transacciones -->
+      <section id="section-transactions" class="section-card" aria-label="Transacciones">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Transacciones</h2>
+            <p class="section-subtitle" id="tx-subtitle">—</p>
+          </div>
+          <button class="btn btn-primary btn-sm btn-auto" id="btn-new-tx">+ Nueva</button>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filters-row" role="search" aria-label="Filtrar transacciones">
+          <select id="filter-type" aria-label="Filtrar por tipo">
+            <option value="">Todos los tipos</option>
+            <option value="income">Ingresos</option>
+            <option value="expense">Gastos</option>
+          </select>
+          <select id="filter-category" aria-label="Filtrar por categoría">
+            <option value="">Todas las categorías</option>
+          </select>
+          <input type="date" id="filter-start" aria-label="Fecha inicio" />
+          <input type="date" id="filter-end"   aria-label="Fecha fin" />
+          <button class="btn btn-ghost btn-sm" id="btn-clear-filters">✕ Limpiar</button>
+        </div>
+
+        <!-- Tabla -->
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Fecha</th>
+                <th scope="col">Tipo</th>
+                <th scope="col">Monto</th>
+                <th scope="col">Categoría</th>
+                <th scope="col">Descripción</th>
+                <th scope="col"><span class="sr-only">Acciones</span></th>
+              </tr>
+            </thead>
+            <tbody id="tx-tbody">
+              <!-- Skeleton de carga inicial -->
+              <tr><td colspan="6"><div class="skeleton skeleton-row"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Paginación (la renderiza txModule.js) -->
+        <div id="pagination-controls" role="navigation" aria-label="Paginación"></div>
+      </section>
+
+      <!-- Metas -->
+      <section id="section-goals" class="section-card" aria-label="Metas de ahorro">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Metas de ahorro</h2>
+            <p class="section-subtitle">Activas e historial</p>
+          </div>
+          <button class="btn btn-secondary btn-sm" id="btn-new-goal">+ Meta</button>
+        </div>
+        <div id="goals-list">
+          <div class="skeleton skeleton-goal"></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Categorías personalizadas -->
+    <section id="section-categories" class="section-card section-card--mb page-section" aria-label="Categorías personalizadas">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Mis categorías personalizadas</h2>
+          <p class="section-subtitle">Las categorías globales del sistema son de solo lectura</p>
+        </div>
+        <button class="btn btn-secondary btn-sm" id="btn-new-category">+ Nueva categoría</button>
+      </div>
+      <div class="categories-wrap" id="categories-list" aria-live="polite">
+        <div class="skeleton skeleton-pill"></div>
+      </div>
+    </section>
+
+  </main>
+</div><!-- /app-shell -->
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     MODALES
+     Cada modal-overlay usa role="dialog" + aria-modal + aria-labelledby.
+     Los botones con data-close se manejan en ui.js (delegación de eventos).
+     ═══════════════════════════════════════════════════════════════════════ -->
+
+<!-- ── Crear / Editar transacción ────────────────────────────────────────── -->
+<div class="modal-overlay" id="modal-tx" role="dialog" aria-modal="true" aria-labelledby="modal-tx-title">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modal-tx-title">Nueva transacción</h2>
+      <button class="modal-close" data-close="modal-tx" aria-label="Cerrar">×</button>
+    </div>
+    <form id="form-tx" novalidate>
+      <input type="hidden" id="tx-id" />
+
+      <div class="form-group">
+        <label class="form-label">Tipo</label>
+        <input type="hidden" id="tx-type" value="expense" />
+        <div class="type-toggle" role="group" aria-label="Tipo de transacción">
+          <button type="button" class="type-btn income"         id="type-income"  data-type="income">↑ Ingreso</button>
+          <button type="button" class="type-btn expense active" id="type-expense" data-type="expense">↓ Gasto</button>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="tx-amount">Monto</label>
+          <input type="number" id="tx-amount" placeholder="0.00" step="0.01" min="0.01" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="tx-date">Fecha</label>
+          <input type="date" id="tx-date" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="tx-category">Categoría</label>
+        <select id="tx-category" required>
+          <option value="">Selecciona categoría</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="tx-description">Descripción <span class="form-optional">(opcional)</span></label>
+        <input type="text" id="tx-description" placeholder="Ej: Almuerzo en el trabajo" maxlength="500" />
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" data-close="modal-tx">Cancelar</button>
+        <button type="submit" class="btn btn-primary btn-auto" id="submit-tx-btn">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ── Confirmar eliminación de transacción ──────────────────────────────── -->
+<div class="modal-overlay" id="modal-delete-tx" role="dialog" aria-modal="true" aria-labelledby="modal-delete-tx-title">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modal-delete-tx-title">¿Eliminar transacción?</h2>
+      <button class="modal-close" data-close="modal-delete-tx" aria-label="Cerrar">×</button>
+    </div>
+    <p class="modal-body-text">Esta acción <strong>no se puede deshacer</strong>.</p>
+    <p class="modal-body-detail" id="delete-tx-info"></p>
+    <div class="form-actions">
+      <button class="btn btn-secondary" data-close="modal-delete-tx">Cancelar</button>
+      <button class="btn btn-danger" id="confirm-delete-tx-btn">Sí, eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Crear / Editar meta ───────────────────────────────────────────────── -->
+<div class="modal-overlay" id="modal-goal" role="dialog" aria-modal="true" aria-labelledby="modal-goal-title">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modal-goal-title">Nueva meta de ahorro</h2>
+      <button class="modal-close" data-close="modal-goal" aria-label="Cerrar">×</button>
+    </div>
+    <form id="form-goal" novalidate>
+      <input type="hidden" id="goal-id" />
+
+      <div class="form-group">
+        <label class="form-label" for="goal-title-input">Nombre de la meta</label>
+        <input type="text" id="goal-title-input" placeholder="Ej: Viaje a Europa" required maxlength="200" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="goal-amount">Monto objetivo</label>
+        <input type="number" id="goal-amount" placeholder="0.00" step="0.01" min="1" required />
+        <!-- Aviso dinámico en modo edición (mínimo = lo ya ahorrado). ui.js lo muestra/oculta. -->
+        <p class="form-hint" id="goal-amount-hint" hidden></p>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" data-close="modal-goal">Cancelar</button>
+        <button type="submit" class="btn btn-primary btn-auto" id="submit-goal-btn">Crear meta</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ── Abonar a meta ─────────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="modal-allocate" role="dialog" aria-modal="true" aria-labelledby="modal-allocate-title">
+  <div class="modal modal-xs">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modal-allocate-title">Abonar a meta</h2>
+      <button class="modal-close" data-close="modal-allocate" aria-label="Cerrar">×</button>
+    </div>
+    <p class="modal-body-text">Meta: <strong id="allocate-goal-name"></strong></p>
+    <p class="modal-body-detail" id="allocate-goal-progress"></p>
+    <form id="form-allocate" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="allocate-amount">Monto a abonar</label>
+        <input type="number" id="allocate-amount" placeholder="0.00" step="0.01" min="0.01" required />
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" data-close="modal-allocate">Cancelar</button>
+        <button type="submit" class="btn btn-primary btn-auto" id="allocate-btn">Abonar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ── Confirmar eliminación de meta ────────────────────────────────────── -->
+<div class="modal-overlay" id="modal-delete-goal" role="dialog" aria-modal="true" aria-labelledby="modal-delete-goal-title">
+  <div class="modal modal-md">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modal-delete-goal-title">¿Eliminar esta meta?</h2>
+      <button class="modal-close" data-close="modal-delete-goal" aria-label="Cerrar">×</button>
+    </div>
+    <p class="modal-body-text" id="delete-goal-info"></p>
+    <!--
+      Explicación del impacto financiero.
+      Al eliminar una meta, los aportes previos (transacciones tipo "saving")
+      PERMANECEN en el historial. El balance no se revierte.
+      Es importante que el usuario entienda esto antes de confirmar.
+    -->
+    <div class="danger-box">
+      <strong>⚠️</strong> Los <strong>aportes ya realizados</strong> (registrados como
+      transacciones de tipo «Ahorro») <strong>permanecerán en tu historial</strong>
+      y seguirán descontándose del balance. Solo se elimina la meta y su seguimiento de progreso.
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" data-close="modal-delete-goal">Cancelar</button>
+      <button class="btn btn-danger" id="confirm-delete-goal-btn">Sí, eliminar meta</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Crear / Editar categoría ─────────────────────────────────────────── -->
+<div class="modal-overlay" id="modal-category" role="dialog" aria-modal="true" aria-labelledby="modal-category-title">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modal-category-title">Nueva categoría</h2>
+      <button class="modal-close" data-close="modal-category" aria-label="Cerrar">×</button>
+    </div>
+    <form id="form-category" novalidate>
+      <input type="hidden" id="category-id" />
+
+      <div class="form-group">
+        <label class="form-label" for="category-name">Nombre</label>
+        <input type="text" id="category-name" placeholder="Ej: Mascotas" required maxlength="100" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="category-type">Tipo</label>
+        <select id="category-type" required>
+          <option value="expense">Gasto</option>
+          <option value="income">Ingreso</option>
+        </select>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" data-close="modal-category">Cancelar</button>
+        <button type="submit" class="btn btn-primary btn-auto" id="submit-category-btn">Crear</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ── Confirmar eliminación de categoría ───────────────────────────────── -->
+<div class="modal-overlay" id="modal-delete-category" role="dialog" aria-modal="true" aria-labelledby="modal-delete-category-title">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modal-delete-category-title">¿Eliminar categoría?</h2>
+      <button class="modal-close" data-close="modal-delete-category" aria-label="Cerrar">×</button>
+    </div>
+    <p class="modal-body-detail" id="delete-category-info"></p>
+    <div class="form-actions">
+      <button class="btn btn-secondary" data-close="modal-delete-category">Cancelar</button>
+      <button class="btn btn-danger" id="confirm-delete-category-btn">Sí, eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container (posición fixed, gestionado por toast en api.js) -->
+<div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+<!--
+  ═══ SCRIPTS ═══════════════════════════════════════════════════════════════
+  Orden estricto — cada archivo puede usar lo que cargaron los anteriores:
+    1. config.js              variables de entorno del frontend (API_BASE, rutas)
+    2. api.js                 cliente HTTP, auth helpers, fmt, toast
+    3. modules/ui.js          helpers de DOM: modales, botones, selects
+    4. modules/charts.js      renderCharts(summaryData) con Chart.js
+    5. modules/txModule.js    CRUD transacciones + paginación + filtros
+    6. modules/goalsModule.js CRUD metas + aportes + flujo completada
+    7. modules/categoriesModule.js CRUD categorías personalizadas
+    8. dashboard.js           orquestador: loadAllData, renderStats, init
+    9. script.js              sidebar móvil
+  ══════════════════════════════════════════════════════════════════════════
+-->
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/modules/ui.js"></script>
+<script src="js/modules/charts.js"></script>
+<script src="js/modules/txModule.js"></script>
+<script src="js/modules/goalsModule.js"></script>
+<script src="js/modules/categoriesModule.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/script.js"></script>
+
+</body>
+</html>

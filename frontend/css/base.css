@@ -1,0 +1,121 @@
+/**
+ * base.css — Reset, variables CSS, tipografía y estilos globales.
+ *
+ * Este archivo se carga en TODAS las páginas de PocketPal.
+ * No contiene estilos específicos de ninguna página ni componente.
+ * Las variables CSS se definen aquí para que todos los archivos CSS las hereden.
+ *
+ * Orden de carga recomendado:
+ *   1. base.css       ← variables + reset + tipografía
+ *   2. components.css ← componentes reutilizables (btn, modal, badge, toast…)
+ *   3. [page].css     ← estilos específicos de la página
+ */
+
+/* ── Reset ─────────────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+a    { color: inherit; text-decoration: none; }
+button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+/* ── CSS Custom Properties (Design Tokens) ─────────────────────────────────── */
+:root {
+  /* Fondos en escala de oscuridad */
+  --bg:       #0a0b0f;
+  --bg2:      #0e0f16;
+  --bg3:      #13141e;
+  --surface:  #191a27;
+
+  /* Bordes */
+  --border:   rgba(124, 0, 255, 0.15);
+  --border2:  rgba(124, 0, 255, 0.30);
+
+  /* Paleta de marca */
+  --purple:   #7c00ff;
+  --violet:   #8b00ff;
+
+  /* Texto */
+  --text:     #e8e0ff;
+  --text2:    #9b8ec4;
+  --text3:    #5a5073;
+
+  /* Semánticos */
+  --green:    #00e5a0;
+  --red:      #ff4d6d;
+  --blue:     #4d9fff;
+  --gold:     #f5c542;
+
+  /* Radios */
+  --radius:    12px;
+  --radius-lg: 20px;
+}
+
+/* ── Scrollbar personalizada ────────────────────────────────────────────────── */
+::-webkit-scrollbar          { width: 4px; height: 4px; }
+::-webkit-scrollbar-track    { background: transparent; }
+::-webkit-scrollbar-thumb    { background: rgba(124, 0, 255, 0.35); border-radius: 99px; }
+
+/* ── Helpers de texto ───────────────────────────────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, #7c00ff, #bf5aff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-dim { color: var(--text3); }
+
+/* ── Helpers de fondo ───────────────────────────────────────────────────────── */
+.nova-grad         { background: linear-gradient(135deg, #7c00ff, #bf5aff); }
+.nova-avatar-grad  { background: linear-gradient(135deg, #7c00ff, #bf5aff); }
+.progress-fill     { background: linear-gradient(90deg,  #7c00ff, #bf5aff); }
+
+/* ── Animación de entrada (usada en page-section) ───────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.page-section { animation: fadeUp 0.3s ease forwards; }
+
+/* ── Skeleton loading ───────────────────────────────────────────────────────── */
+@keyframes shimmer {
+  to { background-position: -200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--bg3) 25%, var(--surface) 50%, var(--bg3) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 8px;
+}
+
+/* ── Spinner ────────────────────────────────────────────────────────────────── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(124, 0, 255, 0.2);
+  border-top-color: var(--purple);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  vertical-align: middle;
+}
