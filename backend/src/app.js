@@ -37,6 +37,9 @@ const __dirname = path.dirname(__filename);
 
 export const app = express();
 
+// ✅ Agregar esta línea — necesaria en Railway, Heroku, Vercel, etc.
+app.set("trust proxy", 1);
+
 // ─── Seguridad ─────────────────────────────────────────────────────────────────
 // helmet añade headers de seguridad HTTP (XSS, HSTS, etc.)
 // contentSecurityPolicy: false porque el frontend usa CDN de Tailwind y Fonts
@@ -44,10 +47,10 @@ app.use(helmet({ contentSecurityPolicy: false }));
 
 // CORS: permite peticiones del frontend
 app.use(
-    cors({
-        origin: process.env.CORS_ORIGIN?.split(",") || "http://127.0.0.1:3000",
-        credentials: true,
-    }),
+  cors({
+    origin: process.env.CORS_ORIGIN?.split(",") || "http://127.0.0.1:3000",
+    credentials: true,
+  }),
 );
 
 // ─── Body parsing ──────────────────────────────────────────────────────────────
@@ -67,11 +70,11 @@ app.use("/api/auth/register", authLimiter);
 
 // ─── Health check ──────────────────────────────────────────────────────────────
 app.get("/health", (req, res) =>
-    res.json({
-        status: "ok",
-        timestamp: new Date().toISOString(),
-        env: process.env.NODE_ENV || "development",
-    }),
+  res.json({
+    status: "ok",
+    timestamp: new Date().toISOString(),
+    env: process.env.NODE_ENV || "development",
+  }),
 );
 
 // ─── Rutas de la API ───────────────────────────────────────────────────────────
@@ -91,11 +94,11 @@ app.use("/api/gmail", gmailRoutes);
 
 // ─── 404 para rutas API no encontradas ────────────────────────────────────────
 app.use("/api/*path", (req, res) => {
-    res.status(404).json({
-        success: false,
-        code: "NOT_FOUND",
-        message: `Ruta ${req.method} ${req.originalUrl} no encontrada`,
-    });
+  res.status(404).json({
+    success: false,
+    code: "NOT_FOUND",
+    message: `Ruta ${req.method} ${req.originalUrl} no encontrada`,
+  });
 });
 
 // ─── Error handler centralizado ────────────────────────────────────────────────
