@@ -60,9 +60,9 @@ window.APP_CONFIG = Object.freeze({
    * @type {{ login: string, dashboard: string, ai: string }}
    */
   PAGES: {
-    login:     '/frontend/index.html',
-    dashboard: '/frontend/dashboard.html',
-    ai:        '/frontend/ai.html',
+    login:     '/index.html',
+    dashboard: '/dashboard.html',
+    ai:        '/ai.html',
   },
 
   /**
