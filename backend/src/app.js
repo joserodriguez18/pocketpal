@@ -64,7 +64,7 @@ app.use("/api/auth/login", authLimiter); // protege contra fuerza bruta
 app.use("/api/auth/register", authLimiter);
 
 // ─── Archivos estáticos del frontend ──────────────────────────────────────────
-app.use(express.static(path.join(__dirname, "..", "frontend")));
+// app.use(express.static(path.join(__dirname, "..", "frontend")));
 
 // ─── Health check ──────────────────────────────────────────────────────────────
 app.get("/health", (req, res) =>
@@ -86,9 +86,9 @@ app.use("/api/gmail", gmailRoutes);
 
 // ─── SPA fallback ──────────────────────────────────────────────────────────────
 // Rutas que no empiezan con /api → servir el index.html del frontend (SPA)
-app.get(/^(?!\/api).*/, (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "frontend", "index.html"));
-});
+// app.get(/^(?!\/api).*/, (req, res) => {
+//   res.sendFile(path.join(__dirname, "..", "frontend", "index.html"));
+// });
 
 // ─── 404 para rutas API no encontradas ────────────────────────────────────────
 app.use("/api/*path", (req, res) => {
