@@ -17,9 +17,9 @@
 
 import "dotenv/config"; // Cargar .env ANTES de cualquier otro import
 
-import { app }                from "./src/app.js";
+import { app } from "./src/app.js";
 import { initializeDatabase } from "./src/db/init.js";
-import { startSyncCron }      from "./src/jobs/syncCron.js";
+import { startSyncCron } from "./src/jobs/syncCron.js";
 
 const PORT = process.env.PORT || 3000;
 
@@ -39,9 +39,13 @@ const startServer = async () => {
     console.log("Base de datos inicializada correctamente");
 
     // Paso 2: Iniciar servidor HTTP
-    app.listen(PORT, () => {
-      console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
-      console.log(`🌍 Entorno: ${process.env.NODE_ENV || "development"}`);
+    // app.listen(PORT, () => {
+    //   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+    //   console.log(`🌍 Entorno: ${process.env.NODE_ENV || "development"}`);
+    // });
+
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
     });
 
     // Paso 3: Iniciar cron de sincronización de Gmail (cada hora)
