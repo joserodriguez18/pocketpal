@@ -95,5 +95,5 @@ registerForm.addEventListener('submit', async (e) => {
  * a dashboard.html con el token en los query params.
  */
 btnGoogle.addEventListener('click', () => {
-  window.location.href = `http://localhost:3000/api/auth/google`;
+  window.location.href = `https://pocketpal-production.up.railway.app/api/auth/google`;
 });
